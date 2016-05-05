@@ -32,3 +32,16 @@ $prev = $hashval;
 $hashval = Algorithm::ConsistentHash::JumpHash::jumphash_siphash("foobar", 14);
 is($hashval, $prev, "Consistent in the same process at least");
 
+$hashval = Algorithm::ConsistentHash::JumpHash::jumphash_highwayhash("foobar", 1);
+is($hashval, 0, "trivial case");
+
+$hashval = Algorithm::ConsistentHash::JumpHash::jumphash_highwayhash("foobar", 1);
+is($hashval, 0, "trivial case consistent");
+
+$hashval = Algorithm::ConsistentHash::JumpHash::jumphash_highwayhash("foobar", 14);
+ok($hashval >= 0 && $hashval < 14, "output in bucket range");
+
+$prev = $hashval;
+$hashval = Algorithm::ConsistentHash::JumpHash::jumphash_highwayhash("foobar", 14);
+is($hashval, $prev, "Consistent in the same process at least");
+

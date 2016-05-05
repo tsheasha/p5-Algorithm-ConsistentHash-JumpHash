@@ -1,17 +1,18 @@
 package Algorithm::ConsistentHash::JumpHash;
+
 use 5.008001;
 use strict;
 use warnings;
 
 require Exporter;
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 require XSLoader;
 XSLoader::load('Algorithm::ConsistentHash::JumpHash', $VERSION);
 
 use Exporter 'import';
-our @EXPORT_OK = qw(jumphash_numeric jumphash_siphash);
+our @EXPORT_OK = qw(jumphash_numeric jumphash_siphash jumphash_highwayhash);
 our %EXPORT_TAGS = (all => \@EXPORT_OK);
 
 1;
@@ -23,7 +24,7 @@ Algorithm::ConsistentHash::JumpHash - The jump consistent hash algorithm
 
 =head1 SYNOPSIS
 
-  use Algorithm::ConsistentHash::JumpHash qw(jumphash_numeric jumphash_siphash);
+  use Algorithm::ConsistentHash::JumpHash qw(jumphash_numeric jumphash_siphash jumphash_highwayhash);
   
   my $bucket_num = jumphash_siphash($item_key, $nbuckets);
 
@@ -35,7 +36,8 @@ consistent hashing algorithm such as Ketama would have been used except that
 it only supports numbered buckets (shards). The time complexity of the
 algorithm is less than C<<O(ln(num_buckets))>>.
 
-The string-key implementation currently uses the SipHash string hash function.
+The string-key implementation currently uses the SipHash or the HighwayHash
+string hash functions.
 
 =head2 EXPORT
 
@@ -59,6 +61,12 @@ As jumphash_siphash, takes a key and a number of buckets and computes and return
 the id of the bucket that the key falls into. However, the SipHash step is
 skipped and the key needs to be a (64bit) unsigned integer.
 
+=head2 jumphash_highwayhash
+
+As jumphash_siphash, takes a key and a number of buckets and computes and returns
+the id of the bucket that the key falls into. However, uses HighwayHash to compute
+a 64bit integer from the string before using jumphash to compute the bucket.
+
 =head1 CAVEATS
 
 64bit. Portability?
@@ -68,6 +76,8 @@ skipped and the key needs to be a (64bit) unsigned integer.
 The jumphash note at L<http://arxiv.org/pdf/1406.2294.pdf>. Much recommended read, great fun.
 
 SipHash string hash function: L<http://en.wikipedia.org/wiki/SipHash>
+
+HighwayHash string hash function: L<https://github.com/google/highwayhash> and L<http://file.scirp.org/pdf/JIS_2014071709515287.pdf>
 
 For alternative consistent hash algorithms/implementations, search CPAN, but here's some:
 
