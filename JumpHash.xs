@@ -4,7 +4,8 @@
 #include "XSUB.h"
 
 #include "ppport.h"
-#include "fix_inline.h"
+#include "code_annotation.h"
+#include "highway_tree_hash.h"
 #include <stdlib.h>
 #include <sys/types.h>
 
@@ -55,7 +56,7 @@
 
 /* SipHash-2-4 */
 
-PERL_STATIC_INLINE uint64_t
+INLINE uint64_t
 siphash_2_4_from_perl(const unsigned char *in, const STRLEN inlen)
 {
   /* "somepseudorandomlygeneratedbytes" */
@@ -145,9 +146,26 @@ jumphash_siphash(SV *str, uint64_t num_buckets)
     {
       STRLEN len;
       /* FIXME */
-      const char * strval = SvPVbyte(str, len);
+      const unsigned char * strval = (const unsigned char *)SvPVbyte(str, len);
       const uint64_t hashval = siphash_2_4_from_perl(strval, len);
       RETVAL = JumpConsistentHash(hashval, num_buckets);
     }
   OUTPUT: RETVAL
 
+int32_t
+jumphash_highwayhash(SV *str, uint64_t num_buckets)
+  CODE:
+    {
+      STRLEN len;
+      const char * strval = SvPVbyte(str, len);
+      const uint8_t* strbytes = (const uint8_t*)strval;
+      const uint64_t size = (const uint64_t)len;
+
+      // PLEASE CHANGE THIS .. this is supposed to be hidden from attackers
+      const uint64_t key[4] = {0x0706050403020100ULL, 0x0F0E0D0C0B0A0908ULL,
+                                       0x1716151413121110ULL, 0x1F1E1D1C1B1A1918ULL};
+
+      const uint64_t hashval = HighwayTreeHash(key, strbytes, size);
+      RETVAL = JumpConsistentHash(hashval, num_buckets);
+    }
+  OUTPUT: RETVAL

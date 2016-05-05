@@ -1,5 +1,7 @@
 Changes
-fix_inline.h
+code_annotation.h
+highway_tree_hash.cc
+highway_tree_hash.h
 JumpHash.xs
 lib/Algorithm/ConsistentHash/JumpHash.pm
 Makefile.PL
@@ -7,3 +9,4 @@ MANIFEST			This list of files
 ppport.h
 t/01_basic.t
 typemap
+vec2.h
